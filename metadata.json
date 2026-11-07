@@ -1,0 +1,6 @@
+{
+  "name": "SubScale",
+  "description": "Fine-tune Android subtitle & caption sizes with granular controls, custom styling, and a live YouTube player preview.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

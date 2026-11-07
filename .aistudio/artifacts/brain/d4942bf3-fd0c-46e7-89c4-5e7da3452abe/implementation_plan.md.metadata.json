@@ -1,0 +1,6 @@
+{
+  "summary": "Implementation plan for high-density, power-user UI overhaul of SubScale subtitle tuner: top-bar Apply action, compact single vertical scroll view, Photoshop-style custom color picker popup with 1-line preset bar, ultra-compact preview with overlay toggles, and dedicated tools bottom sheet for non-styling ADB and system settings.",
+  "updatedAt": "2026-11-06T11:14:01.803161634Z",
+  "requestFeedback": true,
+  "userFacing": true
+}
