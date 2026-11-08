@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -54,6 +55,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -123,6 +125,8 @@ fun YouTubePlayerPreview(
       .animateContentSize()
       .testTag("youtube_player_card")
   ) {
+    val isCompactMode = !isFullAspectRatio && !isFullscreen
+
     BoxWithConstraints(
       modifier = Modifier
         .fillMaxWidth()
@@ -130,7 +134,7 @@ fun YouTubePlayerPreview(
           when {
             isFullscreen -> Modifier.fillMaxHeight()
             isFullAspectRatio -> Modifier.aspectRatio(16f / 9f)
-            else -> Modifier.height(112.dp) // Default compact preview height
+            else -> Modifier.height(132.dp) // Generous height for subtitle style inspection
           }
         )
         .background(Color(0xFF0F0F12))
@@ -167,9 +171,9 @@ fun YouTubePlayerPreview(
           .background(
             Brush.verticalGradient(
               colors = listOf(
-                Color.Black.copy(alpha = 0.45f),
+                Color.Black.copy(alpha = 0.50f),
                 Color.Transparent,
-                Color.Black.copy(alpha = 0.60f)
+                Color.Black.copy(alpha = 0.65f)
               )
             )
           )
@@ -181,19 +185,18 @@ fun YouTubePlayerPreview(
           modifier = Modifier
             .fillMaxSize()
             .padding(
-              horizontal = 14.dp,
-              vertical = if (isFullAspectRatio || isFullscreen) {
-                (boxHeight.value * activeConfig.verticalPositionPercent).coerceIn(8f, 100f).dp
-              } else {
-                8.dp
-              }
+              start = 14.dp,
+              end = 14.dp,
+              top = if (isCompactMode) 26.dp else 12.dp,
+              bottom = if (isCompactMode) 8.dp else (boxHeight.value * activeConfig.verticalPositionPercent).coerceIn(8f, 100f).dp
             ),
-          contentAlignment = Alignment.BottomCenter
+          contentAlignment = if (isCompactMode) Alignment.Center else Alignment.BottomCenter
         ) {
           CaptionTextRenderer(
             text = previewText,
             config = activeConfig,
-            playerHeightDp = if (isFullAspectRatio || isFullscreen) boxHeight.value else 220f
+            playerHeightDp = boxHeight.value,
+            isCompactMode = isCompactMode
           )
         }
       }
@@ -207,12 +210,13 @@ fun YouTubePlayerPreview(
       ) {
         Surface(
           shape = RoundedCornerShape(4.dp),
-          color = if (showSystemComparison) Color(0xFFD32F2F) else Color(0xFF1E88E5),
+          color = if (showSystemComparison) Color(0xFFD32F2F) else if (isCompactMode) Color(0xFF2E7D32) else Color(0xFF1E88E5),
           shadowElevation = 2.dp
         ) {
           Text(
             text = if (showSystemComparison) "OS: ${String.format("%.2f", systemConfig.fontScale)}x"
-            else "CUSTOM: ${String.format("%.2f", customConfig.fontScale)}x",
+            else if (isCompactMode) "STYLE VIEW"
+            else "16:9 • ${String.format("%.2f", customConfig.fontScale)}x",
             color = Color.White,
             fontSize = 9.sp,
             fontWeight = FontWeight.Bold,
@@ -291,7 +295,7 @@ fun YouTubePlayerPreview(
         if (!isFullscreen) {
           Surface(
             shape = RoundedCornerShape(4.dp),
-            color = Color.Black.copy(alpha = 0.65f),
+            color = if (isFullAspectRatio) Color(0xFF1E88E5) else Color.Black.copy(alpha = 0.70f),
             modifier = Modifier
               .clickable { isFullAspectRatio = !isFullAspectRatio }
               .testTag("preview_expand_overlay_button")
@@ -308,10 +312,10 @@ fun YouTubePlayerPreview(
               )
               Spacer(modifier = Modifier.width(3.dp))
               Text(
-                text = if (isFullAspectRatio) "Compact" else "16:9",
+                text = if (isFullAspectRatio) "Style View" else "16:9 Scale",
                 color = Color.White,
                 fontSize = 9.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Bold
               )
             }
           }
@@ -448,9 +452,9 @@ fun YouTubePlayerPreview(
 
 /**
  * Accurately replicates YouTube's Android subtitle rendering:
- * - Base text size is calculated proportional to player height (~5% of player height) multiplied by fontScale
- * - Renders background pill padding
- * - Emulates edge types: Drop shadow, Outline, Raised, Depressed
+ * - In compact mode: displays subtitle prominently (23sp) for effortless styling & color/shadow inspection
+ * - In full 16:9 / fullscreen mode: demonstrates proportional fontScale against the video player
+ * - LocalDensity-scaled drop shadow, 360-degree outline, raised, and depressed effects
  * - Window container color and opacity
  */
 @Composable
@@ -458,33 +462,50 @@ fun CaptionTextRenderer(
   text: String,
   config: CaptionConfig,
   playerHeightDp: Float,
+  isCompactMode: Boolean = false,
   modifier: Modifier = Modifier
 ) {
-  val baseSp = (playerHeightDp * 0.052f).coerceIn(10f, 22f)
-  val calculatedFontSizeSp = (baseSp * config.fontScale).coerceIn(6f, 48f).sp
+  val density = LocalDensity.current
 
+  val calculatedFontSizeSp = if (isCompactMode) {
+    // Default small view: User's primary intent is styling inspection (colors, background, drop shadow)
+    // Scale is demonstrated proportionally in 16:9 Full Mode.
+    if (text.length > 20) 20.sp else 23.sp
+  } else {
+    // 16:9 or Fullscreen mode: proportionally scale against video frame
+    val baseSp = (playerHeightDp * 0.075f).coerceIn(14f, 28f)
+    (baseSp * config.fontScale).coerceIn(8f, 56f).sp
+  }
+
+  // Density-scaled shadows so drop shadow and effects are vivid and crisp on all screen resolutions
   val shadow = when (config.edgeType) {
     EdgeType.NONE -> null
-    EdgeType.DROP_SHADOW -> Shadow(
-      color = config.resolvedEdgeColor,
-      offset = Offset(2.2f * config.edgeWidth, 2.2f * config.edgeWidth),
-      blurRadius = 3f * config.edgeWidth
-    )
-    EdgeType.OUTLINE -> Shadow(
-      color = config.resolvedEdgeColor,
-      offset = Offset(1.5f * config.edgeWidth, 1.5f * config.edgeWidth),
-      blurRadius = 1.5f * config.edgeWidth
-    )
-    EdgeType.RAISED -> Shadow(
-      color = Color.White.copy(alpha = 0.5f),
-      offset = Offset(-1.5f, -1.5f),
-      blurRadius = 1.5f
-    )
-    EdgeType.DEPRESSED -> Shadow(
-      color = Color.Black.copy(alpha = 0.7f),
-      offset = Offset(-1.5f, -1.5f),
-      blurRadius = 2f
-    )
+    EdgeType.DROP_SHADOW -> {
+      val offsetPx = with(density) { (2.8.dp * config.edgeWidth).toPx() }
+      val blurPx = with(density) { (3.6.dp * config.edgeWidth).toPx() }
+      Shadow(
+        color = config.resolvedEdgeColor,
+        offset = Offset(offsetPx, offsetPx),
+        blurRadius = blurPx
+      )
+    }
+    EdgeType.OUTLINE -> null // Rendered via multi-directional offset layers
+    EdgeType.RAISED -> {
+      val offsetPx = with(density) { (2.0.dp * config.edgeWidth).toPx() }
+      Shadow(
+        color = Color.White.copy(alpha = 0.90f),
+        offset = Offset(-offsetPx, -offsetPx),
+        blurRadius = with(density) { 1.5.dp.toPx() }
+      )
+    }
+    EdgeType.DEPRESSED -> {
+      val offsetPx = with(density) { (2.0.dp * config.edgeWidth).toPx() }
+      Shadow(
+        color = Color.Black.copy(alpha = 0.90f),
+        offset = Offset(-offsetPx, -offsetPx),
+        blurRadius = with(density) { 2.dp.toPx() }
+      )
+    }
   }
 
   val textStyle = TextStyle(
@@ -529,6 +550,30 @@ fun CaptionTextRenderer(
               vertical = config.backgroundPaddingV.dp
             )
         ) {
+          if (config.edgeType == EdgeType.OUTLINE) {
+            val strokeDp = (1.4.dp * config.edgeWidth)
+            val outlineOffsets = listOf(
+              Pair(-strokeDp, 0.dp),
+              Pair(strokeDp, 0.dp),
+              Pair(0.dp, -strokeDp),
+              Pair(0.dp, strokeDp),
+              Pair(-strokeDp, -strokeDp),
+              Pair(strokeDp, strokeDp),
+              Pair(-strokeDp, strokeDp),
+              Pair(strokeDp, -strokeDp)
+            )
+            outlineOffsets.forEach { (ox, oy) ->
+              Text(
+                text = line,
+                style = textStyle.copy(
+                  color = config.resolvedEdgeColor,
+                  shadow = null
+                ),
+                modifier = Modifier.offset(x = ox, y = oy)
+              )
+            }
+          }
+
           Text(
             text = line,
             style = textStyle,

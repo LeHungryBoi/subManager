@@ -151,6 +151,14 @@ fun HighDensityStylingControls(
           )
         }
       }
+
+      Text(
+        text = "Proportional scale (${String.format("%.2f", config.fontScale)}x) applies in 16:9 Mode (tap '16:9 Scale' above). Default view shows subtitle styling details.",
+        style = MaterialTheme.typography.labelSmall,
+        fontSize = 9.5.sp,
+        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+        modifier = Modifier.padding(top = 2.dp, start = 2.dp)
+      )
     }
 
     // -------------------------------------------------------------
