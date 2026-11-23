@@ -1,24 +1,26 @@
 package com.example.model
 
+import android.content.Context
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import com.example.R
 
-enum class EdgeType(val label: String, val systemId: Int) {
-  NONE("None", 0),
-  OUTLINE("Outline", 1),
-  DROP_SHADOW("Drop Shadow", 2),
-  RAISED("Raised", 3),
-  DEPRESSED("Depressed", 4)
+enum class EdgeType(val labelRes: Int, val systemId: Int) {
+  NONE(R.string.edge_none, 0),
+  OUTLINE(R.string.edge_outline, 1),
+  DROP_SHADOW(R.string.edge_drop_shadow, 2),
+  RAISED(R.string.edge_raised, 3),
+  DEPRESSED(R.string.edge_depressed, 4)
 }
 
-enum class CaptionFontFamily(val label: String, val composeFontFamily: FontFamily) {
-  DEFAULT("Default (Roboto)", FontFamily.Default),
-  SANS_SERIF("Sans-Serif", FontFamily.SansSerif),
-  SERIF("Serif", FontFamily.Serif),
-  MONOSPACE("Monospace", FontFamily.Monospace),
-  CASUAL("Casual", FontFamily.Cursive)
+enum class CaptionFontFamily(val labelRes: Int, val composeFontFamily: FontFamily) {
+  DEFAULT(R.string.font_default, FontFamily.Default),
+  SANS_SERIF(R.string.font_sans_serif, FontFamily.SansSerif),
+  SERIF(R.string.font_serif, FontFamily.Serif),
+  MONOSPACE(R.string.font_monospace, FontFamily.Monospace),
+  CASUAL(R.string.font_casual, FontFamily.Cursive)
 }
 
 data class CaptionConfig(
@@ -56,17 +58,23 @@ data class CaptionConfig(
 
 data class PresetConfig(
   val id: String,
-  val name: String,
-  val description: String,
+  val name: String = "",
+  val description: String = "",
+  val nameRes: Int = 0,
+  val descriptionRes: Int = 0,
   val config: CaptionConfig
-)
+) {
+  fun displayName(context: Context): String = if (nameRes != 0) context.getString(nameRes) else name
+  fun displayDescription(context: Context): String =
+    if (descriptionRes != 0) context.getString(descriptionRes) else description
+}
 
 object DefaultPresets {
   val list = listOf(
     PresetConfig(
       id = "youtube_default",
-      name = "YouTube Standard",
-      description = "Default 1.0x size, solid black pill background, drop shadow",
+      nameRes = R.string.preset_youtube_default_name,
+      descriptionRes = R.string.preset_youtube_default_description,
       config = CaptionConfig(
         fontScale = 1.0f,
         textColor = 0xFFFFFFFF,
@@ -80,8 +88,8 @@ object DefaultPresets {
     ),
     PresetConfig(
       id = "youtube_compact",
-      name = "Compact (0.75x)",
-      description = "Smaller subtitles suited for mobile portrait viewing",
+      nameRes = R.string.preset_youtube_compact_name,
+      descriptionRes = R.string.preset_youtube_compact_description,
       config = CaptionConfig(
         fontScale = 0.75f,
         textColor = 0xFFFFFFFF,
@@ -96,8 +104,8 @@ object DefaultPresets {
     ),
     PresetConfig(
       id = "youtube_ultra_fine",
-      name = "Ultra-Fine (0.60x)",
-      description = "Subtle unobtrusive captions that do not cover video content",
+      nameRes = R.string.preset_youtube_ultra_fine_name,
+      descriptionRes = R.string.preset_youtube_ultra_fine_description,
       config = CaptionConfig(
         fontScale = 0.60f,
         textColor = 0xFFFFFFFF,
@@ -111,8 +119,8 @@ object DefaultPresets {
     ),
     PresetConfig(
       id = "cinema_minimal",
-      name = "Cinema Minimalist",
-      description = "Transparent background with strong drop shadow",
+      nameRes = R.string.preset_cinema_minimal_name,
+      descriptionRes = R.string.preset_cinema_minimal_description,
       config = CaptionConfig(
         fontScale = 0.85f,
         textColor = 0xFFFFFFFF,
@@ -126,8 +134,8 @@ object DefaultPresets {
     ),
     PresetConfig(
       id = "high_contrast_yellow",
-      name = "High Contrast Yellow",
-      description = "Yellow text on dark background for high legibility",
+      nameRes = R.string.preset_high_contrast_yellow_name,
+      descriptionRes = R.string.preset_high_contrast_yellow_description,
       config = CaptionConfig(
         fontScale = 0.90f,
         textColor = 0xFFFFEB3B,
@@ -141,8 +149,8 @@ object DefaultPresets {
     ),
     PresetConfig(
       id = "anime_outline",
-      name = "Anime Outline",
-      description = "Crisp outlined text without background box",
+      nameRes = R.string.preset_anime_outline_name,
+      descriptionRes = R.string.preset_anime_outline_description,
       config = CaptionConfig(
         fontScale = 0.80f,
         textColor = 0xFFFFF176,

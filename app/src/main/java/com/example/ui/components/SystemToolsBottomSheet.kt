@@ -53,19 +53,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.model.CaptionConfig
 import kotlin.math.roundToInt
 
 val SampleSubtitleTexts = listOf(
-  "字幕呈现效果示例" to "Chinese (Settings)",
-  "This is a closed caption preview." to "Short English",
-  "Welcome back! Today we are fine-tuning closed caption sizes for YouTube on Android." to "Multi-line Dialogue",
-  "字幕のフォントサイズと背景の透明度を微調整します" to "Japanese",
-  "El tamaño de los subtítulos se adapta perfectamente a la pantalla del móvil." to "Spanish"
+  "字幕呈现效果示例" to R.string.sample_label_chinese,
+  "This is a closed caption preview." to R.string.sample_label_english,
+  "Welcome back! Today we are fine-tuning closed caption sizes for YouTube on Android." to R.string.sample_label_dialogue,
+  "字幕のフォントサイズと背景の透明度を微調整します" to R.string.sample_label_japanese,
+  "El tamaño de los subtítulos se adapta perfectamente a la pantalla del móvil." to R.string.sample_label_spanish
 )
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -107,18 +109,18 @@ fun SystemToolsBottomSheet(
       ) {
         Column {
           Text(
-            text = "System Tools & ADB",
+            text = stringResource(R.string.sheet_title),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
           )
           Text(
-            text = "Android OS integration & preview dialogue text",
+            text = stringResource(R.string.sheet_subtitle),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
         }
         IconButton(onClick = onDismiss) {
-          Icon(Icons.Default.Close, contentDescription = "Close tools sheet")
+          Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cd_close_tools))
         }
       }
 
@@ -140,7 +142,10 @@ fun SystemToolsBottomSheet(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-              text = if (hasWritePermission) "WRITE_SECURE_SETTINGS: GRANTED" else "WRITE_SECURE_SETTINGS: REQUIRED",
+              text = stringResource(
+                if (hasWritePermission) R.string.permission_status_granted
+                else R.string.permission_status_required
+              ),
               style = MaterialTheme.typography.labelLarge,
               fontWeight = FontWeight.Bold,
               color = if (hasWritePermission) Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurface
@@ -151,13 +156,13 @@ fun SystemToolsBottomSheet(
 
           if (hasWritePermission) {
             Text(
-              text = "Permission is active! The top bar 'Apply' button will directly write granular subtitle scales to Android OS.",
+              text = stringResource(R.string.permission_explanation_granted),
               style = MaterialTheme.typography.bodySmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
           } else {
             Text(
-              text = "Android OS protects global subtitle scale with WRITE_SECURE_SETTINGS. Grant it once via computer terminal or Shizuku:",
+              text = stringResource(R.string.permission_explanation_required),
               style = MaterialTheme.typography.bodySmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -183,14 +188,16 @@ fun SystemToolsBottomSheet(
               IconButton(
                 onClick = {
                   val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                  clipboard.setPrimaryClip(ClipData.newPlainText("ADB Command", adbCommand))
-                  Toast.makeText(context, "Copied ADB command!", Toast.LENGTH_SHORT).show()
+                  clipboard.setPrimaryClip(
+                    ClipData.newPlainText(context.getString(R.string.clip_label_adb_command), adbCommand)
+                  )
+                  Toast.makeText(context, context.getString(R.string.toast_adb_copied), Toast.LENGTH_SHORT).show()
                 },
                 modifier = Modifier.size(30.dp)
               ) {
                 Icon(
                   imageVector = Icons.Default.ContentCopy,
-                  contentDescription = "Copy ADB Command",
+                  contentDescription = stringResource(R.string.cd_copy_adb),
                   tint = Color.White,
                   modifier = Modifier.size(16.dp)
                 )
@@ -209,14 +216,14 @@ fun SystemToolsBottomSheet(
               ) {
                 Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Refresh", fontSize = 12.sp)
+                Text(stringResource(R.string.action_refresh), fontSize = 12.sp)
               }
 
               Button(
                 onClick = onApplyToSystem,
                 modifier = Modifier.weight(1f)
               ) {
-                Text("Try Apply", fontSize = 12.sp)
+                Text(stringResource(R.string.action_try_apply), fontSize = 12.sp)
               }
             }
           }
@@ -231,15 +238,18 @@ fun SystemToolsBottomSheet(
       ) {
         Column(modifier = Modifier.padding(14.dp)) {
           Text(
-            text = "Active OS Caption State",
+            text = stringResource(R.string.section_os_state),
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold
           )
           Spacer(modifier = Modifier.height(6.dp))
           Text(
-            text = "• Current OS Scale: ${String.format("%.2f", systemConfig.fontScale)}x\n" +
-              "• OS Edge Type: ${systemConfig.edgeType.label}\n" +
-              "• OS Background Opacity: ${(systemConfig.backgroundOpacity * 100).roundToInt()}%",
+            text = stringResource(
+              R.string.os_state_format,
+              "${String.format("%.2f", systemConfig.fontScale)}x",
+              stringResource(systemConfig.edgeType.labelRes),
+              "${(systemConfig.backgroundOpacity * 100).roundToInt()}%"
+            ),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
@@ -256,7 +266,7 @@ fun SystemToolsBottomSheet(
             ) {
               Icon(Icons.Default.Sync, contentDescription = null, modifier = Modifier.size(16.dp))
               Spacer(modifier = Modifier.width(4.dp))
-              Text("Sync from OS", fontSize = 12.sp)
+              Text(stringResource(R.string.action_sync_from_os_short), fontSize = 12.sp)
             }
 
             Button(
@@ -265,7 +275,7 @@ fun SystemToolsBottomSheet(
             ) {
               Icon(Icons.Default.Launch, contentDescription = null, modifier = Modifier.size(16.dp))
               Spacer(modifier = Modifier.width(4.dp))
-              Text("OS Settings", fontSize = 12.sp)
+              Text(stringResource(R.string.action_os_settings), fontSize = 12.sp)
             }
           }
         }
@@ -284,7 +294,7 @@ fun SystemToolsBottomSheet(
             Icon(Icons.Default.TextFields, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-              text = "Test Dialogue Text",
+              text = stringResource(R.string.section_test_dialogue),
               style = MaterialTheme.typography.labelLarge,
               fontWeight = FontWeight.Bold
             )
@@ -298,7 +308,7 @@ fun SystemToolsBottomSheet(
               customTextDraft = it
               onTextChange(it)
             },
-            label = { Text("Preview text") },
+            label = { Text(stringResource(R.string.field_preview_text)) },
             modifier = Modifier.fillMaxWidth(),
             maxLines = 3
           )
@@ -306,7 +316,7 @@ fun SystemToolsBottomSheet(
           Spacer(modifier = Modifier.height(8.dp))
 
           Text(
-            text = "Quick Sample Dialogue:",
+            text = stringResource(R.string.label_quick_sample),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
@@ -318,14 +328,14 @@ fun SystemToolsBottomSheet(
             verticalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier.fillMaxWidth()
           ) {
-            SampleSubtitleTexts.forEach { (text, label) ->
+            SampleSubtitleTexts.forEach { (text, labelRes) ->
               FilterChip(
                 selected = previewText == text,
                 onClick = {
                   customTextDraft = text
                   onTextChange(text)
                 },
-                label = { Text(label, fontSize = 11.sp) }
+                label = { Text(stringResource(labelRes), fontSize = 11.sp) }
               )
             }
           }

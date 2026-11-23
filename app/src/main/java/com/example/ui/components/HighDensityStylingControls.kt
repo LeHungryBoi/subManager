@@ -43,10 +43,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.model.CaptionConfig
 import com.example.model.CaptionFontFamily
 import com.example.model.EdgeType
@@ -58,21 +60,21 @@ fun HighDensityStylingControls(
   onConfigChange: (CaptionConfig) -> Unit,
   modifier: Modifier = Modifier
 ) {
-  // State for active Photoshop Color Picker
-  var activeColorPickerTarget by remember { mutableStateOf<String?>(null) }
+  // State for active Photoshop Color Picker (resource id doubles as the stable target key)
+  var activeColorPickerTarget by remember { mutableStateOf<Int?>(null) }
   var activeColorValue by remember { mutableStateOf(0xFFFFFFFFL) }
 
   // Color picker dialog handler
   activeColorPickerTarget?.let { target ->
     PhotoshopColorPickerDialog(
-      title = target,
+      title = stringResource(target),
       initialColor = activeColorValue,
       onColorSelected = { selectedArgb ->
         when (target) {
-          "Text Color" -> onConfigChange(config.copy(textColor = selectedArgb))
-          "Background Color" -> onConfigChange(config.copy(backgroundColor = selectedArgb))
-          "Edge Color" -> onConfigChange(config.copy(edgeColor = selectedArgb))
-          "Window Color" -> onConfigChange(config.copy(windowColor = selectedArgb))
+          R.string.color_target_text -> onConfigChange(config.copy(textColor = selectedArgb))
+          R.string.color_target_background -> onConfigChange(config.copy(backgroundColor = selectedArgb))
+          R.string.color_target_edge -> onConfigChange(config.copy(edgeColor = selectedArgb))
+          R.string.color_target_window -> onConfigChange(config.copy(windowColor = selectedArgb))
         }
         activeColorPickerTarget = null
       },
@@ -87,7 +89,7 @@ fun HighDensityStylingControls(
     // -------------------------------------------------------------
     // SECTION 1: SUBTITLE SCALE (GRANULAR)
     // -------------------------------------------------------------
-    DensitySectionCard(title = "SUBTITLE SCALE") {
+    DensitySectionCard(title = stringResource(R.string.section_subtitle_scale)) {
       Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -103,7 +105,7 @@ fun HighDensityStylingControls(
             .background(MaterialTheme.colorScheme.surface, CircleShape)
             .testTag("scale_decrease_button")
         ) {
-          Icon(Icons.Default.Remove, contentDescription = "Decrease scale", modifier = Modifier.size(16.dp))
+          Icon(Icons.Default.Remove, contentDescription = stringResource(R.string.cd_decrease_scale), modifier = Modifier.size(16.dp))
         }
 
         Slider(
@@ -132,7 +134,7 @@ fun HighDensityStylingControls(
             .background(MaterialTheme.colorScheme.surface, CircleShape)
             .testTag("scale_increase_button")
         ) {
-          Icon(Icons.Default.Add, contentDescription = "Increase scale", modifier = Modifier.size(16.dp))
+          Icon(Icons.Default.Add, contentDescription = stringResource(R.string.cd_increase_scale), modifier = Modifier.size(16.dp))
         }
 
         // Value Badge
@@ -153,7 +155,10 @@ fun HighDensityStylingControls(
       }
 
       Text(
-        text = "Proportional scale (${String.format("%.2f", config.fontScale)}x) applies in 16:9 Mode (tap '16:9 Scale' above). Default view shows subtitle styling details.",
+        text = stringResource(
+          R.string.scale_explanation,
+          String.format("%.2f", config.fontScale)
+        ),
         style = MaterialTheme.typography.labelSmall,
         fontSize = 9.5.sp,
         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
@@ -164,7 +169,7 @@ fun HighDensityStylingControls(
     // -------------------------------------------------------------
     // SECTION 2: TEXT APPEARANCE
     // -------------------------------------------------------------
-    DensitySectionCard(title = "TEXT APPEARANCE") {
+    DensitySectionCard(title = stringResource(R.string.section_text_appearance)) {
       // Row 1: Color Button + Bold Switch
       Row(
         modifier = Modifier.fillMaxWidth(),
@@ -172,12 +177,12 @@ fun HighDensityStylingControls(
         verticalAlignment = Alignment.CenterVertically
       ) {
         CompactColorButton(
-          label = "Text Color",
+          label = stringResource(R.string.color_target_text),
           colorArgb = config.textColor,
           opacity = config.textOpacity,
           onClick = {
             activeColorValue = config.textColor
-            activeColorPickerTarget = "Text Color"
+            activeColorPickerTarget = R.string.color_target_text
           },
           testTag = "btn_text_color"
         )
@@ -187,7 +192,7 @@ fun HighDensityStylingControls(
           horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
           Text(
-            text = "Bold",
+            text = stringResource(R.string.label_bold),
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold
           )
@@ -203,7 +208,7 @@ fun HighDensityStylingControls(
 
       // Row 2: Text Opacity
       CompactSliderRow(
-        label = "Text Opacity",
+        label = stringResource(R.string.label_text_opacity),
         value = config.textOpacity,
         valueDisplay = "${(config.textOpacity * 100).roundToInt()}%",
         onValueChange = { onConfigChange(config.copy(textOpacity = it)) },
@@ -225,7 +230,7 @@ fun HighDensityStylingControls(
           FilterChip(
             selected = isSelected,
             onClick = { onConfigChange(config.copy(fontFamily = family)) },
-            label = { Text(family.label, fontSize = 10.sp) },
+            label = { Text(stringResource(family.labelRes), fontSize = 10.sp) },
             colors = FilterChipDefaults.filterChipColors(
               selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
               selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -238,7 +243,7 @@ fun HighDensityStylingControls(
     // -------------------------------------------------------------
     // SECTION 3: BACKGROUND CONTAINER
     // -------------------------------------------------------------
-    DensitySectionCard(title = "BACKGROUND CONTAINER") {
+    DensitySectionCard(title = stringResource(R.string.section_background_container)) {
       // Row 1: Background Color Button
       Row(
         modifier = Modifier.fillMaxWidth(),
@@ -246,12 +251,12 @@ fun HighDensityStylingControls(
         verticalAlignment = Alignment.CenterVertically
       ) {
         CompactColorButton(
-          label = "Background Color",
+          label = stringResource(R.string.color_target_background),
           colorArgb = config.backgroundColor,
           opacity = config.backgroundOpacity,
           onClick = {
             activeColorValue = config.backgroundColor
-            activeColorPickerTarget = "Background Color"
+            activeColorPickerTarget = R.string.color_target_background
           },
           testTag = "btn_bg_color"
         )
@@ -261,7 +266,7 @@ fun HighDensityStylingControls(
 
       // Row 2: Opacity Slider
       CompactSliderRow(
-        label = "Bg Opacity",
+        label = stringResource(R.string.label_bg_opacity),
         value = config.backgroundOpacity,
         valueDisplay = "${(config.backgroundOpacity * 100).roundToInt()}%",
         onValueChange = { onConfigChange(config.copy(backgroundOpacity = it)) },
@@ -272,7 +277,7 @@ fun HighDensityStylingControls(
 
       // Row 3: Corner Radius
       CompactSliderRow(
-        label = "Corner Radius",
+        label = stringResource(R.string.label_corner_radius),
         value = config.backgroundCornerRadius,
         valueDisplay = "${config.backgroundCornerRadius.roundToInt()} dp",
         onValueChange = { onConfigChange(config.copy(backgroundCornerRadius = it)) },
@@ -283,7 +288,7 @@ fun HighDensityStylingControls(
 
       // Row 4: Horizontal Padding
       CompactSliderRow(
-        label = "Horiz Padding",
+        label = stringResource(R.string.label_horiz_padding),
         value = config.backgroundPaddingH,
         valueDisplay = "${config.backgroundPaddingH.roundToInt()} dp",
         onValueChange = { onConfigChange(config.copy(backgroundPaddingH = it)) },
@@ -294,7 +299,7 @@ fun HighDensityStylingControls(
     // -------------------------------------------------------------
     // SECTION 4: EDGE & SHADOW
     // -------------------------------------------------------------
-    DensitySectionCard(title = "EDGE & 3D EFFECT") {
+    DensitySectionCard(title = stringResource(R.string.section_edge_effect)) {
       // Edge Type Chips
       Row(
         modifier = Modifier
@@ -308,7 +313,7 @@ fun HighDensityStylingControls(
           FilterChip(
             selected = isSelected,
             onClick = { onConfigChange(config.copy(edgeType = type)) },
-            label = { Text(type.label, fontSize = 10.sp) },
+            label = { Text(stringResource(type.labelRes), fontSize = 10.sp) },
             colors = FilterChipDefaults.filterChipColors(
               selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
               selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -322,12 +327,12 @@ fun HighDensityStylingControls(
 
         // Edge Color Button
         CompactColorButton(
-          label = "Edge / Shadow Color",
+          label = stringResource(R.string.color_button_edge_shadow),
           colorArgb = config.edgeColor,
           opacity = 1f,
           onClick = {
             activeColorValue = config.edgeColor
-            activeColorPickerTarget = "Edge Color"
+            activeColorPickerTarget = R.string.color_target_edge
           },
           testTag = "btn_edge_color"
         )
@@ -336,7 +341,7 @@ fun HighDensityStylingControls(
 
         // Edge Thickness / Depth
         CompactSliderRow(
-          label = "Edge Thickness",
+          label = stringResource(R.string.label_edge_thickness),
           value = config.edgeWidth,
           valueDisplay = "${String.format("%.1f", config.edgeWidth)}x",
           onValueChange = { onConfigChange(config.copy(edgeWidth = it)) },
@@ -348,15 +353,15 @@ fun HighDensityStylingControls(
     // -------------------------------------------------------------
     // SECTION 5: WINDOW & POSITION
     // -------------------------------------------------------------
-    DensitySectionCard(title = "WINDOW & POSITION") {
+    DensitySectionCard(title = stringResource(R.string.section_window_position)) {
       // Window Color Button
       CompactColorButton(
-        label = "Window Box Color",
+        label = stringResource(R.string.color_button_window_box),
         colorArgb = config.windowColor,
         opacity = config.windowOpacity,
         onClick = {
           activeColorValue = config.windowColor
-          activeColorPickerTarget = "Window Color"
+          activeColorPickerTarget = R.string.color_target_window
         },
         testTag = "btn_window_color"
       )
@@ -365,7 +370,7 @@ fun HighDensityStylingControls(
 
       // Window Opacity
       CompactSliderRow(
-        label = "Window Opacity",
+        label = stringResource(R.string.label_window_opacity),
         value = config.windowOpacity,
         valueDisplay = "${(config.windowOpacity * 100).roundToInt()}%",
         onValueChange = { onConfigChange(config.copy(windowOpacity = it)) },
@@ -376,7 +381,7 @@ fun HighDensityStylingControls(
 
       // Vertical Offset from Bottom
       CompactSliderRow(
-        label = "Bottom Distance",
+        label = stringResource(R.string.label_bottom_distance),
         value = config.verticalPositionPercent,
         valueDisplay = "${(config.verticalPositionPercent * 100).roundToInt()}%",
         onValueChange = { onConfigChange(config.copy(verticalPositionPercent = it)) },
@@ -387,7 +392,7 @@ fun HighDensityStylingControls(
 
       // Line Height Spacing
       CompactSliderRow(
-        label = "Line Height",
+        label = stringResource(R.string.label_line_height),
         value = config.lineHeightMultiplier,
         valueDisplay = "${String.format("%.2f", config.lineHeightMultiplier)}x",
         onValueChange = { onConfigChange(config.copy(lineHeightMultiplier = it)) },
@@ -532,7 +537,7 @@ private fun CompactColorButton(
 
       Icon(
         imageVector = Icons.Default.Palette,
-        contentDescription = "Pick custom color",
+        contentDescription = stringResource(R.string.cd_pick_color),
         tint = MaterialTheme.colorScheme.primary,
         modifier = Modifier.size(16.dp)
       )

@@ -58,6 +58,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -68,10 +69,10 @@ import com.example.model.CaptionConfig
 import com.example.model.EdgeType
 import kotlinx.coroutines.delay
 
-enum class PreviewBackdrop(val label: String, val resId: Int?) {
-  BEACH_SUNSET("Sunset", R.drawable.preview_beach_sunset_1793956013368),
-  CITY_BRIGHT("Day City", R.drawable.preview_city_bright_1793956029007),
-  DARK_STUDIO("Dark Studio", null);
+enum class PreviewBackdrop(val labelRes: Int, val resId: Int?) {
+  BEACH_SUNSET(R.string.backdrop_sunset, R.drawable.preview_beach_sunset_1793956013368),
+  CITY_BRIGHT(R.string.backdrop_day_city, R.drawable.preview_city_bright_1793956029007),
+  DARK_STUDIO(R.string.backdrop_dark_studio, null);
 
   fun next(): PreviewBackdrop {
     val values = values()
@@ -146,7 +147,7 @@ fun YouTubePlayerPreview(
       if (selectedBackdrop.resId != null) {
         Image(
           painter = painterResource(id = selectedBackdrop.resId),
-          contentDescription = "Video preview background",
+          contentDescription = stringResource(R.string.cd_video_preview),
           contentScale = ContentScale.Crop,
           modifier = Modifier.fillMaxSize()
         )
@@ -214,9 +215,17 @@ fun YouTubePlayerPreview(
           shadowElevation = 2.dp
         ) {
           Text(
-            text = if (showSystemComparison) "OS: ${String.format("%.2f", systemConfig.fontScale)}x"
-            else if (isCompactMode) "STYLE VIEW"
-            else "16:9 • ${String.format("%.2f", customConfig.fontScale)}x",
+            text = when {
+              showSystemComparison -> stringResource(
+                R.string.badge_os_scale,
+                "${String.format("%.2f", systemConfig.fontScale)}x"
+              )
+              isCompactMode -> stringResource(R.string.badge_style_view)
+              else -> stringResource(
+                R.string.badge_ratio_scale,
+                "${String.format("%.2f", customConfig.fontScale)}x"
+              )
+            },
             color = Color.White,
             fontSize = 9.sp,
             fontWeight = FontWeight.Bold,
@@ -240,13 +249,15 @@ fun YouTubePlayerPreview(
           ) {
             Icon(
               imageVector = Icons.Default.Compare,
-              contentDescription = "Compare OS",
+              contentDescription = stringResource(R.string.cd_compare_os),
               tint = Color.White,
               modifier = Modifier.size(11.dp)
             )
             Spacer(modifier = Modifier.width(3.dp))
             Text(
-              text = if (showSystemComparison) "Custom" else "Compare",
+              text = stringResource(
+                if (showSystemComparison) R.string.action_custom else R.string.action_compare
+              ),
               color = Color.White,
               fontSize = 9.sp,
               fontWeight = FontWeight.Medium
@@ -277,13 +288,13 @@ fun YouTubePlayerPreview(
           ) {
             Icon(
               imageVector = Icons.Default.Image,
-              contentDescription = "Change scene",
+              contentDescription = stringResource(R.string.cd_change_scene),
               tint = Color(0xFFFFD54F),
               modifier = Modifier.size(11.dp)
             )
             Spacer(modifier = Modifier.width(3.dp))
             Text(
-              text = selectedBackdrop.label,
+              text = stringResource(selectedBackdrop.labelRes),
               color = Color.White,
               fontSize = 9.sp,
               fontWeight = FontWeight.Medium
@@ -306,13 +317,15 @@ fun YouTubePlayerPreview(
             ) {
               Icon(
                 imageVector = if (isFullAspectRatio) Icons.Default.CropFree else Icons.Default.AspectRatio,
-                contentDescription = "Toggle 16:9 player vs compact height",
+                contentDescription = stringResource(R.string.cd_toggle_aspect),
                 tint = Color.White,
                 modifier = Modifier.size(11.dp)
               )
               Spacer(modifier = Modifier.width(3.dp))
               Text(
-                text = if (isFullAspectRatio) "Style View" else "16:9 Scale",
+                text = stringResource(
+                  if (isFullAspectRatio) R.string.action_style_view else R.string.action_ratio_scale
+                ),
                 color = Color.White,
                 fontSize = 9.sp,
                 fontWeight = FontWeight.Bold
@@ -332,7 +345,7 @@ fun YouTubePlayerPreview(
           Box(modifier = Modifier.padding(3.dp)) {
             Icon(
               imageVector = if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
-              contentDescription = "Fullscreen",
+              contentDescription = stringResource(R.string.cd_fullscreen),
               tint = Color.White,
               modifier = Modifier.size(12.dp)
             )
@@ -361,7 +374,7 @@ fun YouTubePlayerPreview(
             ) {
               Icon(
                 imageVector = Icons.Default.Replay10,
-                contentDescription = "Replay 10s",
+                contentDescription = stringResource(R.string.cd_replay),
                 tint = Color.White,
                 modifier = Modifier.size(20.dp)
               )
@@ -375,7 +388,9 @@ fun YouTubePlayerPreview(
             ) {
               Icon(
                 imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                contentDescription = if (isPlaying) "Pause" else "Play",
+                contentDescription = stringResource(
+                  if (isPlaying) R.string.cd_pause else R.string.cd_play
+                ),
                 tint = Color.White,
                 modifier = Modifier.size(28.dp)
               )
@@ -389,7 +404,7 @@ fun YouTubePlayerPreview(
             ) {
               Icon(
                 imageVector = if (isCaptionsEnabled) Icons.Default.ClosedCaption else Icons.Default.ClosedCaptionDisabled,
-                contentDescription = "Toggle captions",
+                contentDescription = stringResource(R.string.cd_toggle_captions),
                 tint = if (isCaptionsEnabled) Color.White else Color.Gray,
                 modifier = Modifier.size(20.dp)
               )
@@ -409,7 +424,7 @@ fun YouTubePlayerPreview(
               verticalAlignment = Alignment.CenterVertically
             ) {
               Text(
-                text = "04:18 / 15:20",
+                text = stringResource(R.string.preview_timeline),
                 color = Color.White,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Medium
@@ -419,7 +434,7 @@ fun YouTubePlayerPreview(
                 color = Color.White.copy(alpha = 0.2f)
               ) {
                 Text(
-                  text = "HD",
+                  text = stringResource(R.string.preview_quality),
                   color = Color.White,
                   fontSize = 8.sp,
                   fontWeight = FontWeight.Bold,

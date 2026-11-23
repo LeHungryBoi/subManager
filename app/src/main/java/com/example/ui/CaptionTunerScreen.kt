@@ -45,9 +45,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.ui.components.HighDensityStylingControls
 import com.example.ui.components.SystemToolsBottomSheet
 import com.example.ui.components.YouTubePlayerPreview
@@ -118,7 +120,7 @@ fun CaptionTunerScreen(
               fontWeight = FontWeight.Bold
             )
             Text(
-              text = "Granular Subtitle Tuner",
+              text = stringResource(R.string.tuner_subtitle),
               style = MaterialTheme.typography.labelSmall,
               fontSize = 11.sp,
               color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -133,7 +135,7 @@ fun CaptionTunerScreen(
           ) {
             Icon(
               imageVector = Icons.Default.Build,
-              contentDescription = "System Tools & ADB",
+              contentDescription = stringResource(R.string.cd_system_tools),
               tint = MaterialTheme.colorScheme.onSurface
             )
           }
@@ -145,7 +147,7 @@ fun CaptionTunerScreen(
           ) {
             Icon(
               imageVector = Icons.Default.Sync,
-              contentDescription = "Sync from OS caption settings"
+              contentDescription = stringResource(R.string.cd_sync_from_os)
             )
           }
 
@@ -170,7 +172,7 @@ fun CaptionTunerScreen(
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-              text = "Apply",
+              text = stringResource(R.string.action_apply),
               fontSize = 12.sp,
               fontWeight = FontWeight.Bold
             )

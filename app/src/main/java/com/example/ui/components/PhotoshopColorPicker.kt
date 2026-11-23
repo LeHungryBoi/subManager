@@ -48,11 +48,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import com.example.R
 import kotlin.math.roundToInt
 
 val CuratedSubtitlePresets = listOf(
@@ -262,7 +264,7 @@ fun PhotoshopColorPickerDialog(
 
         // 2. Hue Rainbow Spectrum Bar
         Text(
-          text = "Hue Spectrum",
+          text = stringResource(R.string.label_hue_spectrum),
           style = MaterialTheme.typography.labelSmall,
           color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -324,7 +326,7 @@ fun PhotoshopColorPickerDialog(
                 value = hsv.third
               }
             },
-            label = { Text("HEX", fontSize = 10.sp) },
+            label = { Text(stringResource(R.string.label_hex), fontSize = 10.sp) },
             singleLine = true,
             textStyle = MaterialTheme.typography.bodySmall.copy(
               fontFamily = FontFamily.Monospace,
@@ -347,7 +349,7 @@ fun PhotoshopColorPickerDialog(
             modifier = Modifier.padding(top = 6.dp)
           ) {
             Text(
-              text = "R:$r G:$g B:$b",
+              text = stringResource(R.string.label_rgb, r, g, b),
               fontFamily = FontFamily.Monospace,
               fontSize = 11.sp,
               fontWeight = FontWeight.SemiBold,
@@ -358,7 +360,7 @@ fun PhotoshopColorPickerDialog(
 
         // 4. One-Line Preset Bar (Required: exactly 1 line)
         Text(
-          text = "Quick Swatches",
+          text = stringResource(R.string.label_quick_swatches),
           style = MaterialTheme.typography.labelSmall,
           color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -393,7 +395,7 @@ fun PhotoshopColorPickerDialog(
               if (isSelected) {
                 Icon(
                   imageVector = Icons.Default.Check,
-                  contentDescription = "Selected",
+                  contentDescription = stringResource(R.string.cd_selected),
                   tint = if (presetArgb == 0xFFFFFFFF || presetArgb == 0xFFFFEB3B || presetArgb == 0xFF00E5FF) Color.Black else Color.White,
                   modifier = Modifier.size(14.dp)
                 )
@@ -411,12 +413,12 @@ fun PhotoshopColorPickerDialog(
         },
         modifier = Modifier.testTag("color_picker_select_button")
       ) {
-        Text("Select Color")
+        Text(stringResource(R.string.action_select_color))
       }
     },
     dismissButton = {
       TextButton(onClick = onDismiss) {
-        Text("Cancel")
+        Text(stringResource(R.string.action_cancel))
       }
     }
   )

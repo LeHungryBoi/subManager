@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color as AndroidColor
 import android.provider.Settings
 import android.view.accessibility.CaptioningManager
+import com.example.R
 import com.example.model.CaptionConfig
 import com.example.model.EdgeType
 import kotlinx.coroutines.channels.awaitClose
@@ -123,7 +124,7 @@ class SystemCaptionBridge(private val context: Context) {
   fun applyToSystem(config: CaptionConfig): Result<String> {
     if (!hasWriteSecureSettingsPermission()) {
       return Result.failure(
-        SecurityException("Permission WRITE_SECURE_SETTINGS is not granted. Please run the ADB command.")
+        SecurityException(context.getString(R.string.bridge_permission_missing))
       )
     }
 
@@ -156,7 +157,12 @@ class SystemCaptionBridge(private val context: Context) {
       // Set preset to custom (-1) so system respects our custom values
       Settings.Secure.putInt(resolver, "accessibility_captioning_preset", -1)
 
-      Result.success("System subtitle settings updated! Font scale: ${config.fontScale}x")
+      Result.success(
+        context.getString(
+          R.string.bridge_system_updated,
+          config.fontScale.toString()
+        )
+      )
     } catch (e: Exception) {
       Result.failure(e)
     }

@@ -3,6 +3,7 @@ package com.example.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.R
 import com.example.model.CaptionConfig
 import com.example.model.DefaultPresets
 import com.example.model.PresetConfig
@@ -16,16 +17,20 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-enum class TunerTab(val label: String) {
-  SCALE("Size & Scale"),
-  COLORS("Colors & Opacity"),
-  EDGES("Edges & Shadow"),
-  HIDDEN("Hidden Settings"),
-  PRESETS("Presets & Text"),
-  SYSTEM("System Sync")
+enum class TunerTab(val labelRes: Int) {
+  SCALE(R.string.tab_size_scale),
+  COLORS(R.string.tab_colors_opacity),
+  EDGES(R.string.tab_edges_shadow),
+  HIDDEN(R.string.tab_hidden_settings),
+  PRESETS(R.string.tab_presets_text),
+  SYSTEM(R.string.tab_system_sync)
 }
 
 class CaptionViewModel(application: Application) : AndroidViewModel(application) {
+
+  private val appContext = getApplication<Application>()
+  private fun text(resId: Int): String = appContext.getString(resId)
+  private fun text(resId: Int, vararg args: Any): String = appContext.getString(resId, *args)
 
   private val bridge = SystemCaptionBridge(application)
 
@@ -101,7 +106,7 @@ class CaptionViewModel(application: Application) : AndroidViewModel(application)
     _systemConfig.value = currentSystem
     _customConfig.value = currentSystem
     viewModelScope.launch {
-      _uiEvents.emit("Synced custom preview with Android OS settings")
+      _uiEvents.emit(text(R.string.msg_synced_from_os))
     }
   }
 
@@ -110,9 +115,9 @@ class CaptionViewModel(application: Application) : AndroidViewModel(application)
     _hasWritePermission.value = granted
     viewModelScope.launch {
       if (granted) {
-        _uiEvents.emit("WRITE_SECURE_SETTINGS is granted!")
+        _uiEvents.emit(text(R.string.msg_permission_granted))
       } else {
-        _uiEvents.emit("Permission not yet granted. Run the ADB command in terminal.")
+        _uiEvents.emit(text(R.string.msg_permission_not_granted))
       }
     }
   }
@@ -121,10 +126,10 @@ class CaptionViewModel(application: Application) : AndroidViewModel(application)
     val result = bridge.applyToSystem(_customConfig.value)
     viewModelScope.launch {
       if (result.isSuccess) {
-        _uiEvents.emit(result.getOrDefault("Successfully applied to Android OS!"))
+        _uiEvents.emit(result.getOrDefault(text(R.string.msg_applied_success)))
         _systemConfig.value = bridge.readSystemConfig()
       } else {
-        _uiEvents.emit("Failed: ${result.exceptionOrNull()?.message}")
+        _uiEvents.emit(text(R.string.msg_failed, result.exceptionOrNull()?.message.orEmpty()))
       }
     }
   }
@@ -133,7 +138,7 @@ class CaptionViewModel(application: Application) : AndroidViewModel(application)
     val opened = bridge.openSystemCaptionSettings()
     if (!opened) {
       viewModelScope.launch {
-        _uiEvents.emit("Could not open Android Captioning Settings directly.")
+        _uiEvents.emit(text(R.string.msg_open_settings_failed))
       }
     }
   }
@@ -142,12 +147,12 @@ class CaptionViewModel(application: Application) : AndroidViewModel(application)
     val newPreset = PresetConfig(
       id = "custom_${System.currentTimeMillis()}",
       name = name,
-      description = "Custom scale: ${String.format("%.2f", config.fontScale)}x",
+      description = text(R.string.preset_custom_description, String.format("%.2f", config.fontScale)),
       config = config
     )
     _userPresets.value = _userPresets.value + newPreset
     viewModelScope.launch {
-      _uiEvents.emit("Saved preset: $name")
+      _uiEvents.emit(text(R.string.preset_saved, name))
     }
   }
 }
